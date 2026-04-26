@@ -1,44 +1,116 @@
 # QR Code Generator
 
-A minimalist desktop application for generating QR codes — built with Python and tkinter.
+> A modern desktop application to generate QR codes instantly — built entirely with Python.
 
-> **Author:** João Vilas-Boas Correia — [joaopsn3@gmail.com](mailto:joaopsn3@gmail.com)
+**Author:** João Vilas-Boas Correia — [joaopsn3@gmail.com](mailto:joaopsn3@gmail.com)  
+**License:** MIT  
+**Version:** 4.0.0  
+**Platform:** macOS · Windows · Linux (desktop)
 
 ---
 
-## Overview
+## Screenshots
 
-QR Code Generator lets you turn any text, URL, email address, Wi-Fi config, or other content into a crisp, ready-to-export QR code — all without leaving your desktop. The interface is intentionally clean: a strict monochrome palette, generous spacing, and zero visual clutter so the QR code is always the star.
+### Light Mode — URL
+![URL mode, light theme](screenshots/light-url.png)
+
+### Dark Mode — vCard
+![vCard form, dark theme](screenshots/dark-vcard.png)
+
+### Light Mode — Email
+![Email form with QR preview](screenshots/light-email.png)
+
+---
+
+## What is this?
+
+**QR Code Generator** is a standalone desktop app that lets you create, preview, and export QR codes for any type of content — no browser, no internet connection, no account required.
+
+It runs locally on your machine and opens as a native window. You type or fill in a form, the QR code updates live on screen, and you save it in the format you need.
 
 ---
 
 ## Features
 
-| Feature | Detail |
+### 9 Content Types
+
+Each type has a dedicated smart form that builds the correct QR payload automatically:
+
+| Type | What it generates | Use case |
+|---|---|---|
+| **URL** | Raw URL string | Link to any website |
+| **Text** | Plain text | Notes, coupons, codes |
+| **WiFi** | `WIFI:T:WPA;S:…;P:…;;` | Share Wi-Fi credentials — phone scans and connects automatically |
+| **Email** | `mailto:…?subject=…&body=…` | Pre-filled email compose |
+| **SMS** | `smsto:number:message` | Pre-filled SMS to a number |
+| **vCard** | `MECARD:N:…;TEL:…;EMAIL:…;` | Digital business card — scan to save contact |
+| **GPS** | `geo:lat,lon?q=…` | Share a location — opens in Maps on any phone |
+| **Calendar** | `BEGIN:VEVENT … END:VEVENT` | Add an event to the phone calendar |
+| **Batch** | One QR per line | Export dozens of QR codes at once as a ZIP file |
+
+### Live Preview
+The QR code renders automatically as you type (300 ms debounce). No need to click Generate — it just appears.
+
+### History Strip
+The last 8 generated QR codes are shown as thumbnails at the bottom of the preview panel. Click any thumbnail to reload it instantly.
+
+### Auto-detect
+When you type in the URL field, the app detects if the content looks like an email address or phone number and suggests switching to the right tab.
+
+### QR Colour Slider
+A greyscale slider lets you change the foreground colour of the QR code — from pure black to dark grey — for branding or aesthetic purposes.
+
+### Logo Overlay
+Upload a PNG or JPEG logo to embed in the centre of the QR code. The app automatically forces **Error Correction H** (30% recovery) to keep the code scannable even with the logo covering part of it.
+
+### Error Correction
+Choose between four ISO levels:
+
+| Level | Recovery capacity | Best for |
+|---|---|---|
+| L | ~7% | Clean environments, digital screens |
+| M | ~15% | General use (default) |
+| Q | ~25% | Printed materials |
+| H | ~30% | Logos, stickers, outdoor use |
+
+### Export Options
+
+| Action | Description |
 |---|---|
-| Multi-line content input | Paste URLs, long text, Wi-Fi configs, emails, and more |
-| Live preview | QR updates automatically as you type (300 ms debounce) |
-| Error correction selector | Choose between L / M / Q / H levels |
-| Save as PNG | Exported at 800 × 800 px |
-| Save as JPEG | Exported at 800 × 800 px, quality 95 |
-| Character counter | Displayed in real time below the input label |
-| Clear button | Resets input and preview in one click |
-| Inline error messages | Subtle dark-grey label — no pop-ups |
+| **Save PNG** | Lossless, configurable size |
+| **Save JPEG** | Compressed, quality 95, configurable size |
+| **Save SVG** | Vector format — scales infinitely with no pixelation |
+| **Copy Image** | Copies the QR code directly to the clipboard (macOS) |
+| **Copy Text** | Copies the raw encoded string to the clipboard |
+| **Print** | Sends to the system default printer |
+
+### Export Size
+Choose the pixel size of the exported file: **400 px**, **800 px**, **1200 px**, or **2400 px**.
+
+### Batch Export
+Switch to the **Batch** tab, paste one URL (or any content) per line, and click **Export all as ZIP**. The app generates one QR code per line and packages them all in a single ZIP file — named `qr_001.png`, `qr_002.png`, etc.
+
+### Dark Mode
+Toggle between a light indigo theme and a dark navy theme with a single click. Form data and the current QR code are preserved across the switch.
 
 ---
 
 ## Tech Stack
 
-- **Python 3.10+**
-- **tkinter** — built-in GUI toolkit, styled to a modern monochrome look
-- **qrcode** — QR matrix generation
-- **Pillow** — image manipulation and export
+| Library | Purpose |
+|---|---|
+| **Python 3.10+** | Language |
+| **tkinter** | Native GUI (built-in, no install needed) |
+| **qrcode** | QR matrix generation + SVG export |
+| **Pillow** | Image manipulation, export, logo overlay |
+
+No Electron. No web view. No framework overhead — just Python running natively on your desktop.
 
 ---
 
 ## Getting Started
 
-### 1. Clone the repository
+### 1. Clone
 
 ```bash
 git clone https://github.com/jovbcorreia/qrcode-generator.git
@@ -51,45 +123,15 @@ cd qrcode-generator
 pip install -r requirements.txt
 ```
 
-### 3. Run the app
+> **macOS note:** If you get a `_tkinter` error, run `brew install python-tk@3.13` first.
+
+### 3. Run
 
 ```bash
-python app.py
+python3 app.py
 ```
 
-The window opens centred on your screen at a fixed 900 × 600 px.
-
----
-
-## Usage
-
-1. Type or paste your content in the **Content** text area.
-2. Select the **Error Correction** level from the dropdown (M is a good default).
-3. The QR code preview updates live on the right panel.
-4. Click **Save PNG** or **Save JPEG** to export the QR code at 800 × 800 px.
-5. Use **Clear** to reset everything.
-
-### Error Correction Levels
-
-| Level | Recovery capacity |
-|---|---|
-| L | ~7% |
-| M | ~15% (default) |
-| Q | ~25% |
-| H | ~30% |
-
-Higher levels make the QR code denser but more resilient to damage or partial obscuring.
-
----
-
-## Screenshots
-
-> _Screenshots coming soon — have some to share? Open a PR!_
-
-<!-- Replace the lines below with real screenshot paths once captured -->
-<!-- ![Main window](screenshots/main.png) -->
-<!-- ![QR code generated](screenshots/qr-generated.png) -->
-<!-- ![Save dialog](screenshots/save-dialog.png) -->
+The window opens centred on your screen. It is resizable — drag any edge to make it bigger.
 
 ---
 
@@ -97,27 +139,50 @@ Higher levels make the QR code denser but more resilient to damage or partial ob
 
 ```
 qrcode-generator/
-├── app.py           # Single-file application
-├── requirements.txt # Python dependencies
-├── LICENSE          # MIT licence
-└── README.md        # This file
+├── app.py            # Entire application — single file, ~600 lines
+├── requirements.txt  # Python dependencies (qrcode + Pillow)
+├── pyproject.toml    # Package metadata
+├── LICENSE           # MIT licence
+├── README.md         # This file
+└── screenshots/      # App screenshots
+    ├── light-url.png
+    ├── dark-vcard.png
+    └── light-email.png
 ```
+
+---
+
+## Keyboard & UI Tips
+
+- **Type in the form** → QR updates automatically (no need to click Generate)
+- **Click Generate** → forces a re-render (useful after changing Error Correction)
+- **Click a history thumbnail** → reloads that QR code and content
+- **Set Logo + Clear** → Clear also removes the logo
 
 ---
 
 ## License
 
-This project is licensed under the **MIT License**.  
-Copyright © 2026 **João Vilas-Boas Correia** — [joaopsn3@gmail.com](mailto:joaopsn3@gmail.com)
+```
+MIT License
 
-See [LICENSE](LICENSE) for the full text.
+Copyright (c) 2026 João Vilas-Boas Correia <joaopsn3@gmail.com>
 
----
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
-## Contributing
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
 
-Pull requests are welcome. For major changes, please open an issue first to discuss what you'd like to change.
-
----
-
-*Could you share some screenshots of the app running on your machine? I'll add them to this README to give visitors a better first impression of QR Code Generator.*
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+```

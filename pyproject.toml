@@ -1,0 +1,19 @@
+[project]
+name = "qrcode-generator"
+version = "4.0.0"
+description = "A modern desktop QR code generator built with Python & tkinter"
+authors = [
+    { name = "João Vilas-Boas Correia", email = "joaopsn3@gmail.com" }
+]
+license = { text = "MIT" }
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "qrcode[pil]>=7.4",
+    "Pillow>=10.0",
+]
+
+[project.urls]
+Homepage   = "https://github.com/jovbcorreia/qrcode-generator"
+Repository = "https://github.com/jovbcorreia/qrcode-generator"
+Issues     = "https://github.com/jovbcorreia/qrcode-generator/issues"
