@@ -1,4 +1,4 @@
-# QR Forge
+# QR Code Generator
 
 A minimalist desktop application for generating QR codes — built with Python and tkinter.
 
@@ -8,7 +8,7 @@ A minimalist desktop application for generating QR codes — built with Python a
 
 ## Overview
 
-QR Forge lets you turn any text, URL, email address, Wi-Fi config, or other content into a crisp, ready-to-export QR code — all without leaving your desktop. The interface is intentionally clean: a strict monochrome palette, generous spacing, and zero visual clutter so the QR code is always the star.
+QR Code Generator lets you turn any text, URL, email address, Wi-Fi config, or other content into a crisp, ready-to-export QR code — all without leaving your desktop. The interface is intentionally clean: a strict monochrome palette, generous spacing, and zero visual clutter so the QR code is always the star.
 
 ---
 
@@ -41,8 +41,8 @@ QR Forge lets you turn any text, URL, email address, Wi-Fi config, or other cont
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/jovbcorreia/qr-forge.git
-cd qr-forge
+git clone https://github.com/jovbcorreia/qrcode-generator.git
+cd qrcode-generator
 ```
 
 ### 2. Install dependencies
@@ -96,7 +96,7 @@ Higher levels make the QR code denser but more resilient to damage or partial ob
 ## Project Structure
 
 ```
-qr-forge/
+qrcode-generator/
 ├── app.py           # Single-file application
 ├── requirements.txt # Python dependencies
 ├── LICENSE          # MIT licence
@@ -120,4 +120,4 @@ Pull requests are welcome. For major changes, please open an issue first to disc
 
 ---
 
-*Could you share some screenshots of the app running on your machine? I'll add them to this README to give visitors a better first impression of QR Forge.*
+*Could you share some screenshots of the app running on your machine? I'll add them to this README to give visitors a better first impression of QR Code Generator.*
