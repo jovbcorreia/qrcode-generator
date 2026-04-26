@@ -92,8 +92,9 @@ class QRGeneratorApp:
     # ── Helpers ───────────────────────────────────────────────────────────────
     def _configure_window(self) -> None:
         self.root.title("QR Generator")
-        self.root.resizable(False, False)
-        w, h = 1100, 720
+        self.root.resizable(True, True)
+        self.root.minsize(900, 580)
+        w, h = 1100, 700
         sw, sh = self.root.winfo_screenwidth(), self.root.winfo_screenheight()
         self.root.geometry(f"{w}x{h}+{(sw-w)//2}+{(sh-h)//2}")
         self.root.configure(bg=self._p("bg"))
@@ -161,8 +162,12 @@ class QRGeneratorApp:
 
     # ── Left panel ────────────────────────────────────────────────────────────
     def _build_left(self, parent: tk.Frame) -> None:
-        cv = tk.Canvas(parent, bg=self._p("bg"), highlightthickness=0)
-        sb = tk.Scrollbar(parent, orient="vertical", command=cv.yview)
+        # ── Scrollable top area (form only) ───────────────────────────────
+        scroll_wrap = tk.Frame(parent, bg=self._p("bg"))
+        scroll_wrap.pack(fill="both", expand=True)
+
+        cv = tk.Canvas(scroll_wrap, bg=self._p("bg"), highlightthickness=0)
+        sb = tk.Scrollbar(scroll_wrap, orient="vertical", command=cv.yview)
         cv.configure(yscrollcommand=sb.set)
         sb.pack(side="right", fill="y")
         cv.pack(side="left", fill="both", expand=True)
@@ -175,27 +180,27 @@ class QRGeneratorApp:
                 lambda e: cv.yview_scroll(-1 * (e.delta // 120), "units"))
 
         pad = tk.Frame(inner, bg=self._p("bg"))
-        pad.pack(fill="both", expand=True, padx=22, pady=18)
+        pad.pack(fill="both", expand=True, padx=20, pady=14)
 
-        # ── Type selector pills ────────────────────────────────────────────
+        # Type selector pills
         self._slbl(pad, "CONTENT TYPE")
         self._type_btns: dict[str, tk.Canvas] = {}
         for row_types in TYPE_ROWS:
             rf = tk.Frame(pad, bg=self._p("bg"))
-            rf.pack(fill="x", pady=(0, 4))
+            rf.pack(fill="x", pady=(0, 3))
             for t in row_types:
                 btn = self._pill(rf, t, lambda x=t: self._switch_type(x),
                                  active=(t == self._active_type))
                 btn.pack(side="left", padx=(0, 4))
                 self._type_btns[t] = btn
 
-        # ── Dynamic form ───────────────────────────────────────────────────
+        # Dynamic form
         self._form = tk.Frame(pad, bg=self._p("bg"))
-        self._form.pack(fill="x", pady=(16, 0))
+        self._form.pack(fill="x", pady=(12, 0))
         self._form.columnconfigure(0, weight=1)
 
-        # ── QR Colour ──────────────────────────────────────────────────────
-        self._slbl(pad, "QR COLOUR", top=18)
+        # QR Colour
+        self._slbl(pad, "QR COLOUR", top=14)
         crow = tk.Frame(pad, bg=self._p("bg"))
         crow.pack(fill="x", pady=(4, 0))
         self._color_dot = tk.Label(crow, text="", bg=self._fg_color(),
@@ -211,67 +216,57 @@ class QRGeneratorApp:
                     self._debounce()),
                 ).pack(side="left", fill="x", expand=True)
 
-        # ── Error correction ───────────────────────────────────────────────
-        self._slbl(pad, "ERROR CORRECTION", top=14)
-        ec = ttk.Combobox(pad, textvariable=self._ec_var, values=EC_KEYS,
-                          state="readonly", font=(FONT, 10))
-        ec.pack(fill="x", pady=(4, 0))
-        ec.bind("<<ComboboxSelected>>", lambda _: self._generate_qr())
-
-        # ── Export size ────────────────────────────────────────────────────
-        self._slbl(pad, "EXPORT SIZE", top=12)
-        ttk.Combobox(pad, textvariable=self._size_var,
-                     values=list(EXPORT_SIZES.keys()),
-                     state="readonly", font=(FONT, 10)).pack(fill="x", pady=(4, 0))
-        self._style_combobox()
-
-        # ── Status ─────────────────────────────────────────────────────────
+        # Status
         self._status_lbl = tk.Label(pad, text="", bg=self._p("bg"),
                                      fg=self._p("muted"),
                                      font=(FONT, 10), wraplength=420, justify="left")
-        self._status_lbl.pack(anchor="w", pady=(10, 0))
-
-        # ── Generate (hero button) ─────────────────────────────────────────
-        self._rbtn(pad, "Generate QR Code", self._generate_qr,
-                  bg=C["generate"][0], hover=C["generate"][1],
-                  font=(FONT, 13, "bold"), radius=14, h=48,
-                  ).pack(fill="x", pady=(14, 10))
-
-        # ── Action buttons row 1 ───────────────────────────────────────────
-        r1 = tk.Frame(pad, bg=self._p("bg"))
-        r1.pack(fill="x")
-        r1.columnconfigure((0, 1, 2), weight=1)
-        self._rbtn(r1, "Copy Image",  self._copy_image,
-                  bg=C["copy_img"][0], hover=C["copy_img"][1], radius=10, h=36,
-                  ).grid(row=0, column=0, sticky="ew", padx=(0, 4))
-        self._rbtn(r1, "Copy Text",   self._copy_raw,
-                  bg=C["copy_txt"][0], hover=C["copy_txt"][1], radius=10, h=36,
-                  ).grid(row=0, column=1, sticky="ew", padx=(4, 4))
-        self._rbtn(r1, "Print",       self._print_qr,
-                  bg=C["print_"][0],  hover=C["print_"][1],  radius=10, h=36,
-                  ).grid(row=0, column=2, sticky="ew", padx=(4, 0))
-
-        # ── Action buttons row 2 ───────────────────────────────────────────
-        r2 = tk.Frame(pad, bg=self._p("bg"))
-        r2.pack(fill="x", pady=(6, 0))
-        r2.columnconfigure((0, 1), weight=1)
-        self._rbtn(r2, "Set Logo", self._pick_logo,
-                  bg=C["logo"][0],  hover=C["logo"][1],  radius=10, h=36,
-                  ).grid(row=0, column=0, sticky="ew", padx=(0, 4))
-        self._rbtn(r2, "Clear",    self._clear,
-                  bg=C["clear"][0], hover=C["clear"][1], radius=10, h=36,
-                  ).grid(row=0, column=1, sticky="ew", padx=(4, 0))
+        self._status_lbl.pack(anchor="w", pady=(8, 0))
 
         self._build_form()
+
+        # ── Fixed bottom bar (always visible, outside scroll) ─────────────
+        bottom = tk.Frame(parent, bg=self._p("bg"))
+        bottom.pack(fill="x", padx=20, pady=(8, 14))
+
+        # Generate hero button
+        self._rbtn(bottom, "Generate QR Code", self._generate_qr,
+                  bg=C["generate"][0], hover=C["generate"][1],
+                  font=(FONT, 12, "bold"), radius=12, h=44,
+                  ).pack(fill="x", pady=(0, 8))
+
+        # Row 1
+        r1 = tk.Frame(bottom, bg=self._p("bg"))
+        r1.pack(fill="x", pady=(0, 5))
+        r1.columnconfigure((0, 1, 2), weight=1)
+        self._rbtn(r1, "Copy Image", self._copy_image,
+                  bg=C["copy_img"][0], hover=C["copy_img"][1], radius=9, h=34,
+                  ).grid(row=0, column=0, sticky="ew", padx=(0, 4))
+        self._rbtn(r1, "Copy Text",  self._copy_raw,
+                  bg=C["copy_txt"][0], hover=C["copy_txt"][1], radius=9, h=34,
+                  ).grid(row=0, column=1, sticky="ew", padx=(4, 4))
+        self._rbtn(r1, "Print",      self._print_qr,
+                  bg=C["print_"][0],  hover=C["print_"][1],   radius=9, h=34,
+                  ).grid(row=0, column=2, sticky="ew", padx=(4, 0))
+
+        # Row 2
+        r2 = tk.Frame(bottom, bg=self._p("bg"))
+        r2.pack(fill="x")
+        r2.columnconfigure((0, 1), weight=1)
+        self._rbtn(r2, "Set Logo", self._pick_logo,
+                  bg=C["logo"][0],  hover=C["logo"][1],  radius=9, h=34,
+                  ).grid(row=0, column=0, sticky="ew", padx=(0, 4))
+        self._rbtn(r2, "Clear",    self._clear,
+                  bg=C["clear"][0], hover=C["clear"][1], radius=9, h=34,
+                  ).grid(row=0, column=1, sticky="ew", padx=(4, 0))
 
     # ── Right panel ───────────────────────────────────────────────────────────
     def _build_right(self, parent: tk.Frame) -> None:
         parent.rowconfigure(0, weight=1)
         parent.columnconfigure(0, weight=1)
 
-        # QR preview with border
+        # QR preview (white card, always white even in dark mode)
         cf = tk.Frame(parent, bg=self._p("border"), bd=0)
-        cf.grid(row=0, column=0, sticky="nsew", padx=20, pady=(16, 8))
+        cf.grid(row=0, column=0, sticky="nsew", padx=20, pady=(14, 6))
         cf.rowconfigure(0, weight=1); cf.columnconfigure(0, weight=1)
 
         self._canvas = tk.Canvas(cf, bg="#FFFFFF", bd=0, highlightthickness=0)
@@ -281,11 +276,34 @@ class QRGeneratorApp:
         # Logo label
         self._logo_lbl = tk.Label(parent, text="", bg=self._p("surface"),
                                    fg=self._p("muted"), font=(FONT, 9))
-        self._logo_lbl.grid(row=1, column=0, sticky="w", padx=24)
+        self._logo_lbl.grid(row=1, column=0, sticky="w", padx=22, pady=(0, 2))
+
+        # ── Error correction + Export size (compact row) ───────────────────
+        ctrl = tk.Frame(parent, bg=self._p("surface"))
+        ctrl.grid(row=2, column=0, sticky="ew", padx=20, pady=(2, 6))
+        ctrl.columnconfigure((0, 1), weight=1)
+
+        ec_f = tk.Frame(ctrl, bg=self._p("surface"))
+        ec_f.grid(row=0, column=0, sticky="ew", padx=(0, 6))
+        tk.Label(ec_f, text="ERROR CORRECTION", bg=self._p("surface"),
+                 fg=self._p("muted"), font=(FONT, 8, "bold")).pack(anchor="w")
+        ec = ttk.Combobox(ec_f, textvariable=self._ec_var, values=EC_KEYS,
+                          state="readonly", font=(FONT, 10))
+        ec.pack(fill="x", pady=(3, 0))
+        ec.bind("<<ComboboxSelected>>", lambda _: self._generate_qr())
+
+        sz_f = tk.Frame(ctrl, bg=self._p("surface"))
+        sz_f.grid(row=0, column=1, sticky="ew", padx=(6, 0))
+        tk.Label(sz_f, text="EXPORT SIZE", bg=self._p("surface"),
+                 fg=self._p("muted"), font=(FONT, 8, "bold")).pack(anchor="w")
+        ttk.Combobox(sz_f, textvariable=self._size_var,
+                     values=list(EXPORT_SIZES.keys()),
+                     state="readonly", font=(FONT, 10)).pack(fill="x", pady=(3, 0))
+        self._style_combobox()
 
         # Save buttons
         sf = tk.Frame(parent, bg=self._p("surface"))
-        sf.grid(row=2, column=0, sticky="ew", padx=20, pady=(6, 10))
+        sf.grid(row=3, column=0, sticky="ew", padx=20, pady=(2, 8))
         sf.columnconfigure((0, 1, 2), weight=1)
         self._rbtn(sf, "Save PNG",  self._save_png,
                   bg=C["save_png"][0], hover=C["save_png"][1], radius=10, h=38,
@@ -300,9 +318,9 @@ class QRGeneratorApp:
         # History strip
         tk.Label(parent, text="RECENT", bg=self._p("surface"),
                  fg=self._p("muted"), font=(FONT, 8, "bold"),
-                 ).grid(row=3, column=0, sticky="w", padx=24)
+                 ).grid(row=4, column=0, sticky="w", padx=24)
         self._hist_frame = tk.Frame(parent, bg=self._p("surface"))
-        self._hist_frame.grid(row=4, column=0, sticky="ew", padx=20, pady=(4, 14))
+        self._hist_frame.grid(row=5, column=0, sticky="ew", padx=20, pady=(3, 12))
         self._render_history()
 
     # ── Widget factories ──────────────────────────────────────────────────────
